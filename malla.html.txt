@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malla Curricular Interactiva</title>
+    <style>
+        :root {
+            --color-aprobado: #4CAF50;
+            --color-disponible: #2196F3;
+            --color-no-disponible: #e0e0e0;
+            --color-semestre: #ff9800;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .malla-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .semestre {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 250px;
+            padding: 15px;
+        }
+        
+        .semestre-header {
+            background-color: var(--color-semestre);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .cursos-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .curso-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .curso-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .curso-btn.aprobado {
+            background-color: var(--color-aprobado);
+            color: white;
+        }
+        
+        .curso-btn.disponible {
+            background-color: var(--color-disponible);
+            color: white;
+            cursor: pointer;
+        }
+        
+        .curso-btn.no-disponible {
+            background-color: var(--color-no-disponible);
+            color: #757575;
+            cursor: not-allowed;
+        }
+        
+        .creditos {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 0.8em;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .prerequisitos {
+            font-size: 0.8em;
+            margin-top: 5px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .leyenda {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .leyenda-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .color-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Malla Curricular Universitaria</h1>
+    
+    <div class="malla-container" id="malla-container">
+        <!-- Los semestres se generarán dinámicamente con JavaScript -->
+    </div>
+    
+    <div class="leyenda">
+        <div class="leyenda-item">
+            <div class="color-box" style="background-color: var(--color-aprobado);"></div>
+            <span>Curso Aprobado</span>
+        </div>
+        <div class="leyenda-item">
+            <div class="color-box" style="background-color: var(--color-disponible);"></div>
+            <span>Curso Disponible</span>
+        </div>
+        <div class="leyenda-item">
+            <div class="color-box" style="background-color: var(--color-no-disponible);"></div>
+            <span>Curso no Disponible</span>
+        </div>
+        <div class="leyenda-item">
+            <div class="color-box" style="background-color: var(--color-semestre);"></div>
+            <span>Semestre</span>
+        </div>
+    </div>
+
+    <script>
+        // Datos de los cursos
+        const cursos = [
+            { id: "MAT101", nombre: "Cálculo I", semestre: 1, creditos: 4, prerequisitos: [] },
+            { id: "FIS101", nombre: "Física I", semestre: 1, creditos: 4, prerequisitos: [] },
+            { id: "INF101", nombre: "Programación Básica", semestre: 1, creditos: 3, prerequisitos: [] },
+            
+            { id: "MAT102", nombre: "Cálculo II", semestre: 2, creditos: 4, prerequisitos: ["MAT101"] },
+            { id: "FIS102", nombre: "Física II", semestre: 2, creditos: 4, prerequisitos: ["FIS101"] },
+            { id: "INF102", nombre: "Estructuras de Datos", semestre: 2, creditos: 3, prerequisitos: ["INF101"] },
+            
+            { id: "MAT201", nombre: "Ecuaciones Diferenciales", semestre: 3, creditos: 4, prerequisitos: ["MAT102"] },
+            { id: "INF201", nombre: "Bases de Datos", semestre: 3, creditos: 4, prerequisitos: ["INF102"] },
+            { id: "INF202", nombre: "Algoritmos", semestre: 3, creditos: 4, prerequisitos: ["INF102"] },
+            
+            { id: "INF301", nombre: "Inteligencia Artificial", semestre: 4, creditos: 4, prerequisitos: ["INF201", "INF202"] },
+            { id: "INF302", nombre: "Sistemas Operativos", semestre: 4, creditos: 4, prerequisitos: ["INF202"] },
+            { id: "INF303", nombre: "Redes de Computadoras", semestre: 4, creditos: 4, prerequisitos: ["INF202"] }
+        ];
+
+        // Estado de los cursos (aprobados)
+        const cursosAprobados = new Set();
+        
+        // Función para verificar si un curso está disponible
+        function esDisponible(curso) {
+            return curso.prerequisitos.every(prereq => cursosAprobados.has(prereq));
+        }
+        
+        // Función para renderizar la malla
+        function renderizarMalla() {
+            const container = document.getElementById('malla-container');
+            container.innerHTML = '';
+            
+            // Agrupar cursos por semestre
+            const cursosPorSemestre = {};
+            cursos.forEach(curso => {
+                if (!cursosPorSemestre[curso.semestre]) {
+                    cursosPorSemestre[curso.semestre] = [];
+                }
+                cursosPorSemestre[curso.semestre].push(curso);
+            });
+            
+            // Crear columnas de semestres
+            Object.keys(cursosPorSemestre).sort().forEach(semestre => {
+                const semestreDiv = document.createElement('div');
+                semestreDiv.className = 'semestre';
+                
+                const header = document.createElement('div');
+                header.className = 'semestre-header';
+                header.textContent = `${semestre}° Semestre`;
+                semestreDiv.appendChild(header);
+                
+                const cursosContainer = document.createElement('div');
+                cursosContainer.className = 'cursos-container';
+                
+                cursosPorSemestre[semestre].forEach(curso => {
+                    const cursoBtn = document.createElement('button');
+                    cursoBtn.className = 'curso-btn';
+                    cursoBtn.dataset.id = curso.id;
+                    
+                    // Determinar el estado del curso
+                    if (cursosAprobados.has(curso.id)) {
+                        cursoBtn.classList.add('aprobado');
+                    } else if (esDisponible(curso)) {
+                        cursoBtn.classList.add('disponible');
+                    } else {
+                        cursoBtn.classList.add('no-disponible');
+                    }
+                    
+                    // Contenido del botón
+                    cursoBtn.innerHTML = `
+                        <div class="curso-info">
+                            <strong>${curso.id}</strong>
+                            <div>${curso.nombre}</div>
+                            ${curso.prerequisitos.length > 0 ? 
+                                `<div class="prerequisitos">Requisitos: ${curso.prerequisitos.join(', ')}</div>` : ''
+                            }
+                        </div>
+                        <div class="creditos">${curso.creditos} créditos</div>
+                    `;
+                    
+                    // Evento de clic
+                    if (!cursosAprobados.has(curso.id) && esDisponible(curso)) {
+                        cursoBtn.addEventListener('click', () => {
+                            cursosAprobados.add(curso.id);
+                            renderizarMalla();
+                        });
+                    }
+                    
+                    cursosContainer.appendChild(cursoBtn);
+                });
+                
+                semestreDiv.appendChild(cursosContainer);
+                container.appendChild(semestreDiv);
+            });
+        }
+        
+        // Inicializar la malla
+        document.addEventListener('DOMContentLoaded', renderizarMalla);
+    </script>
+</body>
+</html>
